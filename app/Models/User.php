@@ -14,6 +14,8 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
+    protected $table = 'users';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -23,7 +25,14 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'rol_id',
+        'tipo_usuario_id',
+        'numero_documento',
+        'telefono',
+        'foto',
+        'estado'
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -32,8 +41,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
         'remember_token',
     ];
 
@@ -58,7 +65,83 @@ class User extends Authenticatable
         return Str::of($this->name)
             ->explode(' ')
             ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
+            ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    // Relaciones
+    public function rol()
+    {
+        return $this->belongsTo(Rol::class, 'rol_id');
+    }
+
+    public function tipoUsuario()
+    {
+        return $this->belongsTo(TipoUsuario::class, 'tipo_usuario_id');
+    }
+
+    public function tarjetasRfid()
+    {
+        return $this->hasMany(TarjetaRfid::class, 'user_id');
+    }
+
+    public function vehiculos()
+    {
+        return $this->hasMany(Vehiculo::class, 'user_id');
+    }
+
+    public function registrosAcceso()
+    {
+        return $this->hasMany(RegistroAcceso::class, 'user_id');
+    }
+
+    public function incidenciasReportadas()
+    {
+        return $this->hasMany(Incidencia::class, 'reportado_por');
+    }
+
+    public function visitasComoAnfitrion()
+    {
+        return $this->hasMany(Visitante::class, 'user_id_anfitrion');
+    }
+
+    public function autorizacionesVisitantes()
+    {
+        return $this->hasMany(Visitante::class, 'autorizado_por');
+    }
+
+    // Obtener tarjeta activa actual
+    public function tarjetaActiva()
+    {
+        return $this->hasOne(TarjetaRfid::class, 'user_id')
+            ->where('estado', 'activa')
+            ->where(function ($query) {
+                $query->whereNull('fecha_vencimiento')
+                    ->orWhere('fecha_vencimiento', '>', now());
+            });
+    }
+
+    // Obtener vehículo principal
+    public function vehiculoPrincipal()
+    {
+        return $this->hasOne(Vehiculo::class, 'user_id')
+            ->where('es_principal', true)
+            ->where('estado', 'activo');
+    }
+
+    // Scopes
+    public function scopeActivos($query)
+    {
+        return $query->where('estado', 'activo');
+    }
+
+    public function scopePorTipo($query, $tipoUsuarioId)
+    {
+        return $query->where('tipo_usuario_id', $tipoUsuarioId);
+    }
+
+    public function scopePorRol($query, $rolId)
+    {
+        return $query->where('rol_id', $rolId);
     }
 }

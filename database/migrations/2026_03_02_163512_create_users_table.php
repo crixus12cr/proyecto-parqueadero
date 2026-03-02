@@ -16,9 +16,26 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
+            
+            $table->foreignId('rol_id')
+                ->nullable()
+                ->constrained('roles');
+
+            $table->foreignId('tipo_usuario_id')
+                ->nullable()
+                ->constrained('tipo_usuarios');
+
+            $table->string('numero_documento', 20)->unique()->nullable();
+            $table->string('telefono', 20)->nullable();
+            $table->string('foto')->nullable();
+            $table->string('estado', 20)->default('activo');
             $table->rememberToken();
             $table->timestamps();
+
+            // Índices para búsquedas frecuentes
+            $table->index('numero_documento');
+            $table->index('estado');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
