@@ -1,0 +1,165 @@
+
+// visualizar en: https://dbdiagram.io
+
+// =======================
+// ROLES
+// =======================
+Table roles {
+  id int [pk, increment]
+  nombre varchar
+  descripcion text
+  estado varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+// =======================
+// TIPOS DE USUARIO
+// =======================
+Table tipos_usuario {
+  id int [pk, increment]
+  nombre varchar
+  descripcion text
+  horas_maximas_estadia int
+  prioridad_acceso int
+  estado varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+// =======================
+// USERS
+// =======================
+Table users {
+  id int [pk, increment]
+  nombre varchar
+  email varchar [unique]
+  contrasena varchar
+  rol_id int
+  tipo_usuario_id int
+  numero_documento varchar
+  telefono varchar
+  foto varchar
+  estado varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+// =======================
+// TARJETAS RFID
+// =======================
+Table tarjetas_rfid {
+  id int [pk, increment]
+  uid_tarjeta varchar [unique]
+  user_id int
+  fecha_asignacion datetime
+  fecha_vencimiento datetime
+  estado varchar
+  ultimo_uso datetime
+  observaciones text
+  created_at timestamp
+  updated_at timestamp
+}
+
+// =======================
+// VEHICULOS
+// =======================
+Table vehiculos {
+  id int [pk, increment]
+  user_id int
+  placa varchar
+  marca varchar
+  modelo varchar
+  color varchar
+  tipo_vehiculo varchar
+  es_principal boolean
+  estado varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+// =======================
+// REGISTROS DE ACCESO
+// =======================
+Table registros_acceso {
+  id int [pk, increment]
+  tarjeta_rfid_id int
+  user_id int
+  vehiculo_id int
+  tipo_acceso varchar
+  metodo_acceso varchar
+  fecha_hora datetime
+  operador_id int
+  estado varchar
+  motivo text
+  created_at timestamp
+  updated_at timestamp
+}
+
+// =======================
+// LISTA NEGRA
+// =======================
+Table lista_negra {
+  id int [pk, increment]
+  tarjeta_rfid_id int
+  placa varchar
+  motivo text
+  expira_en datetime
+  created_at timestamp
+  updated_at timestamp
+}
+
+// =======================
+// INCIDENCIAS
+// =======================
+Table incidencias {
+  id int [pk, increment]
+  registro_acceso_id int
+  reportado_por int
+  descripcion text
+  resuelto boolean
+  resuelto_en datetime
+  notas_resolucion text
+  created_at timestamp
+  updated_at timestamp
+}
+
+// =======================
+// VISITANTES
+// =======================
+Table visitantes {
+  id int [pk, increment]
+  nombre_completo varchar
+  numero_documento varchar
+  placa_vehiculo varchar
+  user_id_anfitrion int
+  fecha_ingreso datetime
+  fecha_salida datetime
+  autorizado_por int
+  estado varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+// =======================
+// RELACIONES
+// =======================
+
+Ref: users.rol_id > roles.id
+Ref: users.tipo_usuario_id > tipos_usuario.id
+
+Ref: tarjetas_rfid.user_id > users.id
+Ref: vehiculos.user_id > users.id
+
+Ref: registros_acceso.tarjeta_rfid_id > tarjetas_rfid.id
+Ref: registros_acceso.user_id > users.id
+Ref: registros_acceso.vehiculo_id > vehiculos.id
+Ref: registros_acceso.operador_id > users.id
+
+Ref: lista_negra.tarjeta_rfid_id > tarjetas_rfid.id
+
+Ref: incidencias.registro_acceso_id > registros_acceso.id
+Ref: incidencias.reportado_por > users.id
+
+Ref: visitantes.user_id_anfitrion > users.id
+Ref: visitantes.autorizado_por > users.id
