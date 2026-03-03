@@ -148,14 +148,14 @@
 
                 <!-- Módulo de Administración (Solo para admins) -->
                 @if(auth()->user()->tieneAlgunRol(['Super Administrador', 'Administrador']))
-                <flux:sidebar.group heading="Administración" expandable icon="cog" :expanded="request()->routeIs('admin*')">
-                    <flux:sidebar.item icon="cog" href="#" :current="request()->routeIs('admin.configuracion*')" wire:navigate>
+                <flux:sidebar.group heading="Administración" expandable icon="cog-6-tooth" :expanded="request()->routeIs('admin*')">
+                    <flux:sidebar.item icon="cog-6-tooth" href="#" :current="request()->routeIs('admin.configuracion*')" wire:navigate>
                         {{ __('Configuración') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="adjustments-horizontal" href="#" :current="request()->routeIs('admin.parametros*')" wire:navigate>
+                    <flux:sidebar.item icon="adjustments-vertical" href="#" :current="request()->routeIs('admin.parametros*')" wire:navigate>
                         {{ __('Parámetros del Sistema') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="database" href="#" :current="request()->routeIs('admin.backup*')" wire:navigate>
+                    <flux:sidebar.item icon="circle-stack" href="#" :current="request()->routeIs('admin.backup*')" wire:navigate>
                         {{ __('Respaldo de Datos') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="users" href="#" :current="request()->routeIs('admin.roles*')" wire:navigate>
@@ -170,8 +170,50 @@
             <!-- Modo oscuro -->
             <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" aria-label="Toggle dark mode" class="justify-center" />
 
-            <!-- Perfil de usuario -->
-            <flux:sidebar.profile :name="auth()->user()->name" :avatar="auth()->user()->foto" />
+            <!-- Perfil de usuario con menú desplegable -->
+            <flux:dropdown position="top" align="start">
+                <flux:sidebar.profile :name="auth()->user()->name" :avatar="auth()->user()->foto" />
+                
+                <flux:menu class="min-w-64">
+                    <flux:menu.radio.group>
+                        <div class="p-0 text-sm font-normal">
+                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                                <flux:avatar
+                                    :name="auth()->user()->name"
+                                    :initials="auth()->user()->initials()"
+                                />
+                                <div class="grid flex-1 text-start text-sm leading-tight">
+                                    <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
+                                    <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
+                                </div>
+                            </div>
+                        </div>
+                    </flux:menu.radio.group>
+
+                    <flux:menu.separator />
+
+                    <flux:menu.radio.group>
+                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
+                            {{ __('Configuración') }}
+                        </flux:menu.item>
+                    </flux:menu.radio.group>
+
+                    <flux:menu.separator />
+
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <flux:menu.item
+                            as="button"
+                            type="submit"
+                            icon="arrow-right-start-on-rectangle"
+                            class="w-full cursor-pointer"
+                            data-test="logout-button"
+                        >
+                            {{ __('Cerrar Sesión') }}
+                        </flux:menu.item>
+                    </form>
+                </flux:menu>
+            </flux:dropdown>
         </flux:sidebar>
 
         <!-- Mobile User Menu -->
