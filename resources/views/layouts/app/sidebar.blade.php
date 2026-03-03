@@ -149,9 +149,6 @@
                 <!-- Módulo de Administración (Solo para admins) -->
                 @if(auth()->user()->tieneAlgunRol(['Super Administrador', 'Administrador']))
                 <flux:sidebar.group heading="Administración" expandable icon="cog-6-tooth" :expanded="request()->routeIs('admin*')">
-                    <flux:sidebar.item icon="cog-6-tooth" href="#" :current="request()->routeIs('admin.configuracion*')" wire:navigate>
-                        {{ __('Configuración') }}
-                    </flux:sidebar.item>
                     <flux:sidebar.item icon="adjustments-vertical" href="#" :current="request()->routeIs('admin.parametros*')" wire:navigate>
                         {{ __('Parámetros del Sistema') }}
                     </flux:sidebar.item>
