@@ -155,7 +155,7 @@
                     <flux:sidebar.item icon="circle-stack" href="#" :current="request()->routeIs('admin.backup*')" wire:navigate>
                         {{ __('Respaldo de Datos') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="users" href="#" :current="request()->routeIs('admin.roles*')" wire:navigate>
+                    <flux:sidebar.item icon="users" href="{{ route('admin.roles') }}" :current="request()->routeIs('admin.roles*')" wire:navigate>
                         {{ __('Gestión de Roles') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
