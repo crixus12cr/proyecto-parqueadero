@@ -25,7 +25,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'rol_id',
         'tipo_usuario_id',
         'numero_documento',
         'telefono',
@@ -70,11 +69,6 @@ class User extends Authenticatable
     }
 
     // Relaciones
-    public function rol()
-    {
-        return $this->belongsTo(Rol::class, 'rol_id');
-    }
-
     public function tipoUsuario()
     {
         return $this->belongsTo(TipoUsuario::class, 'tipo_usuario_id');
@@ -108,6 +102,40 @@ class User extends Authenticatable
     public function autorizacionesVisitantes()
     {
         return $this->hasMany(Visitante::class, 'autorizado_por');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(
+            Rol::class,          // Modelo relacionado
+            'rol_user',          // Tabla pivote
+            'user_id',           // FK de este modelo en la pivote
+            'rol_id'             // FK del otro modelo en la pivote
+        )->withTimestamps();
+    }
+
+    // Helper: verificar si tiene un rol específico
+    public function tieneRol($rolNombre)
+    {
+        return $this->roles()->where('nombre', $rolNombre)->exists();
+    }
+
+    // Helper: verificar si tiene alguno de los roles
+    public function tieneAlgunRol(array $roles)
+    {
+        return $this->roles()->whereIn('nombre', $roles)->exists();
+    }
+
+    // Helper: obtener nombres de roles como array
+    public function getNombresRolesAttribute()
+    {
+        return $this->roles->pluck('nombre')->toArray();
+    }
+
+    // Helper: verificar si es administrador (cualquier rol admin)
+    public function esAdministrador()
+    {
+        return $this->tieneAlgunRol(['Super Administrador', 'Administrador']);
     }
 
     // Obtener tarjeta activa actual

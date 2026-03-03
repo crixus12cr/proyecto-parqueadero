@@ -24,7 +24,12 @@ class Rol extends Model
     // Relación con usuarios
     public function usuarios()
     {
-        return $this->hasMany(User::class, 'rol_id');
+        return $this->belongsToMany(
+            User::class,         // Modelo relacionado
+            'rol_user',          // Tabla pivote
+            'rol_id',            // FK de este modelo en la pivote
+            'user_id'            // FK del otro modelo en la pivote
+        )->withTimestamps();
     }
 
     // Scope para roles activos

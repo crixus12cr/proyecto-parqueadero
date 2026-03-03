@@ -18,9 +18,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             
-            $table->foreignId('rol_id')
-                ->nullable()
-                ->constrained('roles');
+            // $table->foreignId('rol_id')
+            //     ->nullable()
+            //     ->constrained('roles');
 
             $table->foreignId('tipo_usuario_id')
                 ->nullable()
