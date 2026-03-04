@@ -71,9 +71,9 @@ class BackupService
             exec($comando, $output, $returnVar);
             
             // Guardar log para depuración
-            \Log::info('Comando ejecutado: ' . $comando);
-            \Log::info('Return code: ' . $returnVar);
-            \Log::info('Output: ' . implode("\n", $output));
+            Log::info('Comando ejecutado: ' . $comando);
+            Log::info('Return code: ' . $returnVar);
+            Log::info('Output: ' . implode("\n", $output));
             
             // Verificar si el archivo se creó
             if (!file_exists($rutaCompleta)) {
@@ -120,7 +120,7 @@ class BackupService
             
         } catch (\Exception $e) {
             // Registrar error
-            \Log::error('Error en respaldo: ' . $e->getMessage());
+            Log::error('Error en respaldo: ' . $e->getMessage());
             
             $this->respaldoRepository->registrarRespaldo([
                 'nombre' => 'respaldo_fallido_' . Carbon::now()->format('Y-m-d_H-i-s'),
