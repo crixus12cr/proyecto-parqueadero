@@ -243,7 +243,8 @@
                     cancelButtonText: 'Cancelar'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        Livewire.dispatch('eliminar', datos.id);
+                        // Enviar como objeto con id
+                        Livewire.dispatch('eliminar', { id: datos.id });
                     }
                 });
             });

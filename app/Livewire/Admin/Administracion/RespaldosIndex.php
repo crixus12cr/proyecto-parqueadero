@@ -49,7 +49,7 @@ class RespaldosIndex extends Component
         'respaldoGenerado' => '$refresh',
         'confirmarRestaurar',
         'confirmarEliminar',
-        'eliminar' // ← Agregado para el método eliminar
+        'eliminar' 
     ];
 
     public function __construct()
@@ -235,6 +235,26 @@ class RespaldosIndex extends Component
 
     public function eliminar($id)
     {
+        
+        // Si es array y tiene 'id', extraerlo
+        if (is_array($id) && isset($id[0]['id'])) {
+            $id = $id[0]['id'];
+        } elseif (is_array($id) && isset($id['id'])) {
+            $id = $id['id'];
+        } elseif (is_array($id) && isset($id[0])) {
+            $id = $id[0];
+        }
+        
+        // Si no hay ID, salir
+        if (!$id) {
+            $this->dispatch('alerta', [
+                'titulo' => '¡Error!',
+                'texto' => 'No se pudo identificar el respaldo a eliminar.',
+                'icono' => 'error'
+            ]);
+            return;
+        }
+        
         try {
             $this->respaldoRepository->eliminarRespaldo($id);
             
@@ -243,6 +263,8 @@ class RespaldosIndex extends Component
                 'texto' => 'El respaldo se ha eliminado correctamente.',
                 'icono' => 'success'
             ]);
+            
+            $this->resetPage();
             
         } catch (\Exception $e) {
             $this->dispatch('alerta', [
