@@ -261,61 +261,142 @@ class BackupService
      */
     public function restaurarRespaldo($id)
     {
-        $respaldo = $this->respaldoRepository->findById($id);
+        try {
+            $respaldo = $this->respaldoRepository->findById($id);
 
-        if (!$respaldo || !$respaldo->archivo) {
-            throw new \Exception('Respaldo no encontrado');
-        }
-
-        $ruta = storage_path("app/{$respaldo->archivo}");
-
-        if (!file_exists($ruta)) {
-            throw new \Exception('Archivo de respaldo no encontrado');
-        }
-
-        // Si es ZIP, extraer
-        if (pathinfo($ruta, PATHINFO_EXTENSION) == 'zip') {
-            $zip = new ZipArchive();
-            if ($zip->open($ruta) === true) {
-                $tempDir = storage_path('app/temp_restore');
-                if (!file_exists($tempDir)) {
-                    mkdir($tempDir, 0755, true);
-                }
-
-                $zip->extractTo($tempDir);
-                $zip->close();
-
-                // Restaurar BD desde el SQL extraído
-                $sqlPath = $tempDir . '/database.sql';
-                if (file_exists($sqlPath)) {
-                    $sql = file_get_contents($sqlPath);
-                    DB::unprepared($sql);
-                }
-
-                // Restaurar archivos
-                $this->restaurarArchivos($tempDir);
-
-                // Limpiar temporal
-                exec('rm -rf ' . $tempDir);
+            if (!$respaldo || !$respaldo->archivo) {
+                throw new \Exception('Respaldo no encontrado');
             }
-        } else {
-            // Restaurar directamente archivo SQL
-            $sql = file_get_contents($ruta);
-            DB::unprepared($sql);
-        }
 
-        return true;
+            $ruta = storage_path("app/{$respaldo->archivo}");
+
+            if (!file_exists($ruta)) {
+                throw new \Exception('Archivo de respaldo no encontrado: ' . $ruta);
+            }
+
+            // Si es ZIP, extraer
+            if (pathinfo($ruta, PATHINFO_EXTENSION) == 'zip') {
+                $zip = new ZipArchive();
+                if ($zip->open($ruta) === true) {
+                    $tempDir = storage_path('app/temp_restore_' . time()); // ← Nombre único
+                    
+                    // Crear directorio temporal
+                    if (!file_exists($tempDir)) {
+                        mkdir($tempDir, 0755, true);
+                    }
+
+                    $zip->extractTo($tempDir);
+                    $zip->close();
+
+                    // Restaurar BD desde el SQL extraído
+                    $sqlPath = $tempDir . '/database.sql';
+                    if (file_exists($sqlPath)) {
+                        $sql = file_get_contents($sqlPath);
+                        
+                        // Ejecutar el SQL (cuidado: esto borra datos existentes)
+                        DB::unprepared($sql);
+                    } else {
+                        throw new \Exception('No se encontró el archivo database.sql en el ZIP');
+                    }
+
+                    // Restaurar archivos
+                    $this->restaurarArchivos($tempDir);
+
+                    // Limpiar temporal (versión para Windows)
+                    $this->eliminarDirectorio($tempDir);
+                    
+                } else {
+                    throw new \Exception('No se pudo abrir el archivo ZIP');
+                }
+            } else {
+                // Restaurar directamente archivo SQL
+                $sql = file_get_contents($ruta);
+                
+                // Verificar que no esté vacío
+                if (empty($sql)) {
+                    throw new \Exception('El archivo SQL está vacío');
+                }
+                
+                DB::unprepared($sql);
+            }
+
+            return true;
+            
+        } catch (\Exception $e) {
+            Log::error('Error al restaurar respaldo: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
-     * Restaurar archivos desde el respaldo
+     * Restaurar archivos desde el respaldo (versión para Windows)
      */
     protected function restaurarArchivos($tempDir)
     {
         $publicDir = $tempDir . '/public';
         if (is_dir($publicDir)) {
             $destino = storage_path('app/public');
-            exec("cp -r {$publicDir}/* {$destino}/");
+            
+            // Crear destino si no existe
+            if (!file_exists($destino)) {
+                mkdir($destino, 0755, true);
+            }
+            
+            // Copiar archivos (versión Windows)
+            $this->copiarDirectorio($publicDir, $destino);
         }
     }
+
+    /**
+     * Copiar directorio recursivamente (compatible con Windows)
+     */
+    protected function copiarDirectorio($origen, $destino)
+    {
+        if (!is_dir($origen)) {
+            return;
+        }
+        
+        if (!file_exists($destino)) {
+            mkdir($destino, 0755, true);
+        }
+        
+        $items = scandir($origen);
+        foreach ($items as $item) {
+            if ($item == '.' || $item == '..') continue;
+            
+            $origenItem = $origen . DIRECTORY_SEPARATOR . $item;
+            $destinoItem = $destino . DIRECTORY_SEPARATOR . $item;
+            
+            if (is_dir($origenItem)) {
+                $this->copiarDirectorio($origenItem, $destinoItem);
+            } else {
+                copy($origenItem, $destinoItem);
+            }
+        }
+    }
+
+    /**
+     * Eliminar directorio recursivamente (compatible con Windows)
+     */
+    protected function eliminarDirectorio($dir)
+    {
+        if (!file_exists($dir)) {
+            return;
+        }
+        
+        $items = scandir($dir);
+        foreach ($items as $item) {
+            if ($item == '.' || $item == '..') continue;
+            
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($path)) {
+                $this->eliminarDirectorio($path);
+            } else {
+                unlink($path);
+            }
+        }
+        
+        rmdir($dir);
+    }
+
 }

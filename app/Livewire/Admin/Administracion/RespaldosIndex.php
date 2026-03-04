@@ -5,7 +5,7 @@ namespace App\Livewire\Admin\Administracion;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Repositories\Eloquent\RespaldoRepository; // ← Cambiado: usar implementación concreta
+use App\Repositories\Eloquent\RespaldoRepository; 
 use App\Services\BackupService;
 use App\Http\Requests\Admin\Administracion\ConfigurarRespaldoRequest;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +54,6 @@ class RespaldosIndex extends Component
 
     public function __construct()
     {
-        // ✅ Usar el repositorio concreto directamente, sin interfaz
         $this->respaldoRepository = app(RespaldoRepository::class);
         $this->backupService = app(BackupService::class);
     }
