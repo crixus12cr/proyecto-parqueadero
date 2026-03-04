@@ -152,9 +152,17 @@
                     <flux:sidebar.item icon="adjustments-vertical" href="#" :current="request()->routeIs('admin.parametros*')" wire:navigate>
                         {{ __('Parámetros del Sistema') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="circle-stack" href="#" :current="request()->routeIs('admin.backup*')" wire:navigate>
+                    {{-- <flux:sidebar.item icon="circle-stack" href="#" :current="request()->routeIs('admin.backup*')" wire:navigate>
                         {{ __('Respaldo de Datos') }}
-                    </flux:sidebar.item>
+                    </flux:sidebar.item> --}}
+                    <flux:sidebar.item 
+    icon="circle-stack" 
+    href="{{ route('admin.respaldos') }}"
+    :current="request()->routeIs('admin.respaldos*')" 
+    wire:navigate
+>
+    {{ __('Respaldo de Datos') }}
+</flux:sidebar.item>
                     <flux:sidebar.item icon="users" href="{{ route('admin.roles') }}" :current="request()->routeIs('admin.roles*')" wire:navigate>
                         {{ __('Gestión de Roles') }}
                     </flux:sidebar.item>
