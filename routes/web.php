@@ -3,6 +3,7 @@
 use App\Livewire\Admin\Administracion\ParametrosIndex;
 use App\Livewire\Admin\Administracion\RespaldosIndex;
 use App\Livewire\Admin\Administracion\RolesIndex;
+use App\Livewire\Admin\GestionUsuario\UsuariosIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -22,6 +23,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('admin.parametros')
         ->middleware('rol:Super Administrador,Administrador');Route::get('admin/parametros', ParametrosIndex::class)
         ->name('admin.parametros')
+        ->middleware('rol:Super Administrador,Administrador');
+
+    Route::get('admin/gestion-usuario/usuarios', UsuariosIndex::class)
+        ->name('admin.gestion-usuario.usuarios')
         ->middleware('rol:Super Administrador,Administrador');
 });
 

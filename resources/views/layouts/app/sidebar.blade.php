@@ -24,30 +24,13 @@
 
             <!-- Módulo de Gestión de Usuarios (Expandible) -->
             <flux:sidebar.group heading="Gestión de Usuarios" expandable icon="users"
-                :expanded="request()->routeIs('usuarios*')">
-                <flux:sidebar.item icon="users" href="#" :current="request()->routeIs('usuarios.todos*')"
+                :expanded="request()->routeIs('admin.gestion-usuario*')">
+                <flux:sidebar.item 
+                    icon="users" 
+                    href="{{ route('admin.gestion-usuario.usuarios') }}" 
+                    :current="request()->routeIs('admin.gestion-usuario.usuarios*')"
                     wire:navigate>
-                    {{ __('Todos los Usuarios') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="user-plus" href="#" :current="request()->routeIs('usuarios.crear*')"
-                    wire:navigate>
-                    {{ __('Registrar Usuario') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="academic-cap" href="#"
-                    :current="request()->routeIs('usuarios.estudiantes*')" wire:navigate>
-                    {{ __('Estudiantes') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="briefcase" href="#" :current="request()->routeIs('usuarios.profesores*')"
-                    wire:navigate>
-                    {{ __('Profesores') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="wrench-screwdriver" href="#"
-                    :current="request()->routeIs('usuarios.trabajadores*')" wire:navigate>
-                    {{ __('Trabajadores') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="user-group" href="#" :current="request()->routeIs('usuarios.invitados*')"
-                    wire:navigate>
-                    {{ __('Invitados') }}
+                    {{ __('Gestión de Usuarios') }}
                 </flux:sidebar.item>
             </flux:sidebar.group>
 
@@ -218,7 +201,7 @@
 
         <!-- Perfil de usuario con menú desplegable -->
         <flux:dropdown position="top" align="start">
-            <flux:sidebar.profile :name="auth()->user()->name" :avatar="auth()->user()->foto" />
+            <flux:sidebar.profile :name="auth()->user()->name" :avatar="auth()->user()->avatar"/>
 
             <flux:menu class="min-w-64">
                 <flux:menu.radio.group>
