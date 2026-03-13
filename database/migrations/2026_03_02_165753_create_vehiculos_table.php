@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('vehiculos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->string('placa', 10)->unique();
+            $table->string('placa', 10)->unique()->nullable();
             $table->string('marca', 50)->nullable();
             $table->string('modelo', 50)->nullable();
             $table->string('color', 30)->nullable();

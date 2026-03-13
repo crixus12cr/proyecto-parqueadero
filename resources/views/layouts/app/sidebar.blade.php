@@ -62,17 +62,12 @@
             <!-- Módulo de Vehículos (Expandible) -->
             <flux:sidebar.group heading="Vehículos" expandable icon="truck"
                 :expanded="request()->routeIs('vehiculos*')">
-                <flux:sidebar.item icon="truck" href="#" :current="request()->routeIs('vehiculos.todos*')"
+                <flux:sidebar.item 
+                    icon="truck" 
+                    href="{{ route('admin.gestion-vehiculo.vehiculos') }}"
+                    :current="request()->routeIs('admin.gestion-vehiculo.vehiculos*')" 
                     wire:navigate>
-                    {{ __('Todos los Vehículos') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="plus" href="#" :current="request()->routeIs('vehiculos.registrar*')"
-                    wire:navigate>
-                    {{ __('Registrar Vehículo') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="magnifying-glass" href="#"
-                    :current="request()->routeIs('vehiculos.buscar*')" wire:navigate>
-                    {{ __('Buscar por Placa') }}
+                    {{ __('Gestión de Vehículos') }}
                 </flux:sidebar.item>
             </flux:sidebar.group>
 
