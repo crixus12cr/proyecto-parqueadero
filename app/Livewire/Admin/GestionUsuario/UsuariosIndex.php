@@ -50,6 +50,7 @@ class UsuariosIndex extends Component
     
     // Listeners para eventos
     protected $listeners = [
+        'eliminar',
         'confirmarEliminar',
         'usuarioActualizado' => '$refresh',
         'usuarioCreado' => '$refresh'
@@ -237,6 +238,38 @@ class UsuariosIndex extends Component
     public function eliminar($id)
     {
         try {
+            $usuario = $this->usuarioRepository->findById($id);
+            
+            // Verificar si tiene vehículos
+            if ($usuario->vehiculos()->count() > 0) {
+                $this->dispatch('alerta', [
+                    'titulo' => '¡No se puede eliminar!',
+                    'texto' => 'El usuario tiene vehículos registrados. Debe eliminar o reasignar los vehículos primero.',
+                    'icono' => 'error'
+                ]);
+                return;
+            }
+            
+            // Verificar si tiene tarjetas RFID
+            if ($usuario->tarjetasRfid()->count() > 0) {
+                $this->dispatch('alerta', [
+                    'titulo' => '¡No se puede eliminar!',
+                    'texto' => 'El usuario tiene tarjetas RFID asignadas. Debe eliminarlas primero.',
+                    'icono' => 'error'
+                ]);
+                return;
+            }
+            
+            // Verificar si tiene registros de acceso
+            if ($usuario->registrosAcceso()->count() > 0) {
+                $this->dispatch('alerta', [
+                    'titulo' => '¡No se puede eliminar!',
+                    'texto' => 'El usuario tiene historial de accesos. No se puede eliminar por auditoría.',
+                    'icono' => 'error'
+                ]);
+                return;
+            }
+            
             $this->usuarioRepository->delete($id);
             
             $this->dispatch('alerta', [
@@ -244,6 +277,8 @@ class UsuariosIndex extends Component
                 'texto' => 'El usuario se ha eliminado correctamente.',
                 'icono' => 'success'
             ]);
+            
+            $this->resetPage();
             
         } catch (\Exception $e) {
             $this->dispatch('alerta', [
