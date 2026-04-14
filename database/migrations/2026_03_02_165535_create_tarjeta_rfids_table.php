@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tarjeta_rfids', function (Blueprint $table) {
             $table->id();
             $table->string('uid_tarjeta', 50)->unique();
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->nullable()->constrained('users');
             $table->dateTime('fecha_asignacion');
             $table->dateTime('fecha_vencimiento')->nullable();
             $table->string('estado', 20)->default('activa');

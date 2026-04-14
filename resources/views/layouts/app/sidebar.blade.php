@@ -35,26 +35,36 @@
             </flux:sidebar.group>
 
             <!-- Módulo de Tarjetas RFID (Expandible) -->
-            <flux:sidebar.group heading="Tarjetas RFID" expandable icon="identification"
-                :expanded="request()->routeIs('tarjetas*')">
-                <flux:sidebar.item icon="identification" href="#"
-                    :current="request()->routeIs('tarjetas.inventario*')" wire:navigate>
+            <flux:sidebar.group heading="Tarjetas RFID" expandable icon="identification" :expanded="request()->routeIs('admin.gestion-tarjetas*')">
+                <flux:sidebar.item 
+                    icon="identification" 
+                    href="{{ route('admin.gestion-tarjetas.tarjetas') }}"
+                    :current="request()->routeIs('admin.gestion-tarjetas.tarjetas*')" 
+                    wire:navigate>
                     {{ __('Inventario de Tarjetas') }}
                 </flux:sidebar.item>
-                <flux:sidebar.item icon="plus-circle" href="#" :current="request()->routeIs('tarjetas.asignar*')"
+                <flux:sidebar.item 
+                    icon="user-plus" 
+                    href="{{ route('admin.gestion-tarjetas.asignar') }}"
+                    :current="request()->routeIs('admin.gestion-tarjetas.asignar*')" 
                     wire:navigate>
                     {{ __('Asignar Tarjeta') }}
                 </flux:sidebar.item>
-                <flux:sidebar.item icon="arrow-path" href="#"
-                    :current="request()->routeIs('tarjetas.reemplazar*')" wire:navigate>
-                    {{ __('Reemplazar Tarjeta') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="exclamation-triangle" href="#"
-                    :current="request()->routeIs('tarjetas.perdidas*')" wire:navigate>
-                    {{ __('Tarjetas Perdidas') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="clock" href="#" :current="request()->routeIs('tarjetas.por-vencer*')"
-                    wire:navigate badge="3">
+                @php
+                    use App\Models\TarjetaRfid;
+                    $tarjetasPorVencer = TarjetaRfid::where('estado', 'activa')
+                        ->whereNotNull('fecha_vencimiento')
+                        ->where('fecha_vencimiento', '<=', now()->addDays(30))
+                        ->where('fecha_vencimiento', '>', now())
+                        ->count();
+                @endphp
+
+                <flux:sidebar.item 
+                    icon="clock" 
+                    href="{{ route('admin.gestion-tarjetas.por-vencer') }}"
+                    :current="request()->routeIs('admin.gestion-tarjetas.por-vencer*')" 
+                    wire:navigate
+                    badge="{{ $tarjetasPorVencer > 0 ? $tarjetasPorVencer : '' }}">
                     {{ __('Próximas a Vencer') }}
                 </flux:sidebar.item>
             </flux:sidebar.group>
